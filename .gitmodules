@@ -1,0 +1,6 @@
+[submodule "dify"]
+	path = dify
+	url = https://github.com/langgenius/dify.git
+[submodule "twenty"]
+	path = twenty
+	url = https://github.com/twentyhq/twenty.git

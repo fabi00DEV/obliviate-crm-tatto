@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(cloudflared --version)",
+      "Read(//home/fabio/.cloudflared/**)",
+      "Bash(cloudflared tunnel *)",
+      "Bash(systemctl status *)",
+      "Bash(systemctl list-units *)",
+      "Bash(sudo cat /etc/cloudflared/config.yml)",
+      "Read(//etc/cloudflared/**)",
+      "Bash(sudo ss -tlnp)",
+      "Bash(awk '/^  nginx:/,/^  [a-z]/' /home/fabio/workspace/crm-obliviate/dify/docker/docker-compose.yaml)",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/healthz)",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8080/)",
+      "Bash(sudo -n true)",
+      "Bash(sudo cp /tmp/claude-1000/-home-fabio-workspace-crm-obliviate/c41245b6-8989-44e6-b79d-8772a0c06f17/scratchpad/cloudflared-config.yml /etc/cloudflared/config.yml)",
+      "Bash(sudo systemctl restart cloudflared)",
+      "Bash(sudo systemctl status cloudflared --no-pager)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -o /dev/null -w 'twenty: %{http_code}\\\\n' https://twenty.liracraft.store)",
+      "Bash(curl -s -o /dev/null -w 'dify: %{http_code}\\\\n' https://dify.liracraft.store)"
+    ]
+  }
+}
