@@ -1,0 +1,26 @@
+---
+# Template for secrets. Copy this file to vault.yml, fill in real values, then
+# encrypt it — never commit vault.yml unencrypted:
+#
+#   cp group_vars/all/vault.yml.example group_vars/all/vault.yml
+#   ansible-vault encrypt group_vars/all/vault.yml
+#
+# Generate random secrets with: openssl rand -base64 42
+
+# --- Cloudflare Tunnel ---
+# From `cloudflared tunnel create <name>` (run once, on any machine with
+# `cloudflared tunnel login` done). tunnel_id and the credentials file content
+# are the same for every VM sharing this tunnel — copy the exact JSON that
+# `cloudflared tunnel create` writes to ~/.cloudflared/<tunnel_id>.json.
+vault_cloudflare_tunnel_id: "00000000-0000-0000-0000-000000000000"
+vault_cloudflare_tunnel_credentials_json: |
+  {"AccountTag":"changeme","TunnelSecret":"changeme","TunnelID":"changeme"}
+
+# --- Dify (dify/docker/.env) ---
+vault_dify_secret_key: "changeme"
+vault_dify_db_password: "changeme"
+vault_dify_redis_password: "changeme"
+
+# --- Twenty (twenty/packages/twenty-docker/.env) ---
+vault_twenty_encryption_key: "changeme"
+vault_twenty_pg_database_password: "changeme"

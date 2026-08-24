@@ -1,0 +1,55 @@
+---
+- name: Add Cloudflare GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.cloudflare.com/cloudflare-main.gpg
+    dest: /usr/share/keyrings/cloudflare-main.gpg
+    mode: "0644"
+
+- name: Add cloudflared apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main"
+    state: present
+    filename: cloudflared
+
+- name: Install cloudflared
+  ansible.builtin.apt:
+    name: cloudflared
+    state: present
+    update_cache: true
+
+- name: Create /etc/cloudflared directory
+  ansible.builtin.file:
+    path: /etc/cloudflared
+    state: directory
+    mode: "0755"
+
+# Same tunnel (and therefore the same credentials file) is shared by every
+# host in the group unless you create a separate tunnel per VM.
+- name: Install tunnel credentials file
+  ansible.builtin.copy:
+    content: "{{ vault_cloudflare_tunnel_credentials_json }}"
+    dest: "/etc/cloudflared/{{ cloudflare_tunnel_id }}.json"
+    mode: "0600"
+  no_log: true
+  notify: restart cloudflared
+
+- name: Template tunnel ingress config
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: /etc/cloudflared/config.yml
+    mode: "0644"
+  notify: restart cloudflared
+
+- name: Install cloudflared systemd unit
+  ansible.builtin.template:
+    src: cloudflared.service.j2
+    dest: /etc/systemd/system/cloudflared.service
+    mode: "0644"
+  notify: restart cloudflared
+
+- name: Enable and start cloudflared
+  ansible.builtin.systemd:
+    name: cloudflared
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -1,0 +1,32 @@
+---
+- name: Check if twenty .env already exists
+  ansible.builtin.stat:
+    path: "{{ twenty_docker_dir }}/.env"
+  register: twenty_env_stat
+
+- name: Seed twenty .env from .env.example
+  ansible.builtin.copy:
+    src: "{{ twenty_docker_dir }}/.env.example"
+    dest: "{{ twenty_docker_dir }}/.env"
+    remote_src: true
+    mode: "0600"
+  when: not twenty_env_stat.stat.exists
+
+- name: Set required secrets and server URL in twenty .env
+  ansible.builtin.lineinfile:
+    path: "{{ twenty_docker_dir }}/.env"
+    regexp: "^#?\\s*{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: "SERVER_URL", value: "{{ twenty_server_url }}" }
+    - { key: "ENCRYPTION_KEY", value: "{{ vault_twenty_encryption_key }}" }
+    - { key: "PG_DATABASE_PASSWORD", value: "{{ vault_twenty_pg_database_password }}" }
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: true
+
+- name: Start the Twenty stack
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ twenty_docker_dir }}"
+  changed_when: true

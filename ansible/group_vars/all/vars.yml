@@ -1,0 +1,37 @@
+---
+# Non-secret configuration shared by every host in crm_hosts.
+# Secrets referenced here (vault_*) live in group_vars/all/vault.yml (ansible-vault encrypted).
+
+base_domain: liracraft.store
+
+ssh_hostname: "ssh.{{ base_domain }}"
+twenty_hostname: "twenty.{{ base_domain }}"
+dify_hostname: "dify.{{ base_domain }}"
+
+# Local ports each app listens on. Must match the docker compose EXPOSE_* /
+# port-mapping settings below and the cloudflared ingress rules.
+ssh_tunnel_port: 22022
+twenty_port: 3000
+dify_nginx_port: 8080
+
+# Cloudflare Tunnel (created once per environment via `cloudflared tunnel login`
+# + `cloudflared tunnel create <name>` — this playbook only installs the client
+# and points it at an existing tunnel, it does not create tunnels/DNS records).
+cloudflare_tunnel_id: "{{ vault_cloudflare_tunnel_id }}"
+cloudflare_ingress:
+  - hostname: "{{ ssh_hostname }}"
+    service: "tcp://localhost:{{ ssh_tunnel_port }}"
+  - hostname: "{{ twenty_hostname }}"
+    service: "http://localhost:{{ twenty_port }}"
+  - hostname: "{{ dify_hostname }}"
+    service: "http://localhost:{{ dify_nginx_port }}"
+  - service: http_status:404
+
+# obliviate-crm-tatto repo (contains dify/ and twenty/ as git submodules)
+repo_url: git@github.com:fabi00DEV/obliviate-crm-tatto.git
+repo_version: main
+repo_dest: "/home/{{ ansible_user }}/workspace/crm-obliviate"
+
+dify_docker_dir: "{{ repo_dest }}/dify/docker"
+twenty_docker_dir: "{{ repo_dest }}/twenty/packages/twenty-docker"
+twenty_server_url: "https://{{ twenty_hostname }}"

@@ -1,0 +1,10 @@
+---
+- name: Provision obliviate-crm-tatto stack (Twenty + Dify + Cloudflare Tunnel)
+  hosts: crm_hosts
+  become: true
+  roles:
+    - docker
+    - repo
+    - dify
+    - twenty
+    - cloudflared

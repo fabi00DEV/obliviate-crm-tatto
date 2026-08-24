@@ -1,0 +1,33 @@
+---
+- name: Check if dify/docker/.env already exists
+  ansible.builtin.stat:
+    path: "{{ dify_docker_dir }}/.env"
+  register: dify_env_stat
+
+- name: Seed dify/docker/.env from .env.example
+  ansible.builtin.copy:
+    src: "{{ dify_docker_dir }}/.env.example"
+    dest: "{{ dify_docker_dir }}/.env"
+    remote_src: true
+    mode: "0600"
+  when: not dify_env_stat.stat.exists
+
+- name: Set required secrets and exposed port in dify/docker/.env
+  ansible.builtin.lineinfile:
+    path: "{{ dify_docker_dir }}/.env"
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: "SECRET_KEY", value: "{{ vault_dify_secret_key }}" }
+    - { key: "DB_PASSWORD", value: "{{ vault_dify_db_password }}" }
+    - { key: "REDIS_PASSWORD", value: "{{ vault_dify_redis_password }}" }
+    - { key: "EXPOSE_NGINX_PORT", value: "{{ dify_nginx_port }}" }
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: true
+
+- name: Start the Dify stack
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ dify_docker_dir }}"
+  changed_when: true

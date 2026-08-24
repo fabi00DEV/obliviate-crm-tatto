@@ -11,6 +11,9 @@ com automações específicas do negócio em `tasks/`.
 - `tasks/` — tarefas e scripts de automação específicos deste projeto
   (ex: import de contatos do WhatsApp, follow-up de clientes, extração de
   detalhes de tatuagem via agente).
+- `ansible/` — infraestrutura como código para replicar o ambiente (Docker,
+  os stacks do Dify e do Twenty, e o cliente Cloudflare Tunnel) em novas VMs.
+  Ver [`ansible/README.md`](ansible/README.md).
 
 ## Clonando o repositório
 
